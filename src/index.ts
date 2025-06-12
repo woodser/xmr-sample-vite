@@ -8,7 +8,6 @@ window.monero = moneroTs;
 //moneroTs.LibraryUtils.setWorkerLoader(() => new Worker(new URL("monero-ts/dist/monero.worker.js", import.meta.url)));
 
 main();
-testSampleCode();
 
 async function main() {
 
@@ -23,9 +22,13 @@ async function main() {
   document.getElementById("wallet_address")!.innerHTML = "Address: " + (await walletKeys.getAddress(0, 0));
   document.getElementById("wallet_spend_key")!.innerHTML = "Spend key: " + (await walletKeys.getPrivateSpendKey());
   document.getElementById("wallet_view_key")!.innerHTML = "View key: " + (await walletKeys.getPrivateViewKey());
+
+  await testSampleCode();
 }
 
 async function testSampleCode() {
+
+  console.log("Using monero-ts version: " + moneroTs.getVersion());
 
   // connect to mainnet daemon without worker proxy
   let daemon1 = await moneroTs.connectToDaemonRpc({server: "https://moneronode.org:18081", proxyToWorker: false});
@@ -60,7 +63,7 @@ async function testSampleCode() {
   console.log("Synchronizing wallet");
   await walletFull.sync(new class extends moneroTs.MoneroWalletListener {
     async onSyncProgress(height: number, startHeight: number, endHeight: number, percentDone: number, message: string) {
-      // feed a progress bar?
+      //console.log("Sync progress: " + percentDone + "%");
     }
   });
   
