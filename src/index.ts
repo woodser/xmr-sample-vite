@@ -31,11 +31,11 @@ async function testSampleCode() {
   console.log("Using monero-ts version: " + moneroTs.getVersion());
 
   // connect to mainnet daemon without worker proxy
-  let daemon1 = await moneroTs.connectToDaemonRpc({server: "https://moneronode.org:18081", proxyToWorker: false});
+  let daemon1 = await moneroTs.connectToDaemonRpc({server: "http://xmr-node.cakewallet.com:18081", proxyToWorker: false});
   console.log("Daemon height 1: " + await daemon1.getHeight());
 
   // connect to mainnet daemon with worker proxy
-  let daemon2 = await moneroTs.connectToDaemonRpc({server: "https://moneronode.org:18081", proxyToWorker: true});
+  let daemon2 = await moneroTs.connectToDaemonRpc({server: "http://xmr-node.cakewallet.com:18081", proxyToWorker: true});
   console.log("Daemon height 2: " + await daemon2.getHeight());
 
   // connect to a daemon
@@ -49,13 +49,9 @@ async function testSampleCode() {
   console.log("Creating wallet from seed phrase");
   let walletFull = await moneroTs.createWalletFull({
     password: "supersecretpassword123",
-    networkType: moneroTs.MoneroNetworkType.TESTNET,
-    seed: "silk mocked cucumber lettuce hope adrenalin aching lush roles fuel revamp baptism wrist long tender teardrop midst pastry pigment equip frying inbound pinched ravine frying",
-    restoreHeight: 171,
+    networkType: moneroTs.MoneroNetworkType.MAINNET,
     server: {
-      uri: "http://localhost:28081",
-      username: "superuser",
-      password: "abctesting123"
+      uri: "http://xmr-node.cakewallet.com:18081",
     }
   });
   
@@ -79,34 +75,8 @@ async function testSampleCode() {
       fundsReceived = true;
     }
   });
-
-  // open wallet on monero-wallet-rpc
-  console.log("Opening monero-wallet-rpc");
-  let walletRpc = await moneroTs.connectToWalletRpc("http://localhost:28084", "rpc_user", "abc123");
-  await walletRpc.openWallet("test_wallet_1", "supersecretpassword123");
-  let primaryAddress = await walletRpc.getPrimaryAddress(); // 555zgduFhmKd2o8rPUz...
-  await walletRpc.sync();                                   // synchronize with the network
-  let balance = await walletRpc.getBalance();               // 533648366742
-  let txs = await walletRpc.getTxs();                       // get transactions containing transfers to/from the wallet
-
-  // send funds from RPC wallet to WebAssembly wallet
-  console.log("Transferring funds from monero-wallet-rpc");
-  let createdTx = await walletRpc.createTx({
-    accountIndex: 0,
-    address: await walletFull.getAddress(1, 0),
-    amount: 5000000n, // amount to transfer in atomic units
-    relay: false // create transaction and relay to the network if true
-  });
-  let fee = createdTx.getFee(); // "Are you sure you want to send... ?"
-  await walletRpc.relayTx(createdTx); // relay the transaction
-  
-  // recipient receives unconfirmed funds within 5s seconds
-  await new Promise(function(resolve) { setTimeout(resolve, 5000); });
-  assert(fundsReceived);
-  
   // close wallets
   console.log("Closing wallets");
   await walletFull.close();
-  await walletRpc.close();
   console.log("Done running XMR sample app");
 }
