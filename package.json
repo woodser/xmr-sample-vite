@@ -6,7 +6,7 @@
     "dev": "vite"
   },
   "dependencies": {
-    "monero-ts": "^0.11.10"
+    "monero-ts": "^0.11.12"
   },
   "devDependencies": {
     "vite": "^5.2.9",
